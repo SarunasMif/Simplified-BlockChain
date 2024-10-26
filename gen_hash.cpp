@@ -1,4 +1,4 @@
-#include "includes.h"
+#include "gen_hash.h"
 using namespace std;
 
 const int start_N = 33;
@@ -237,26 +237,35 @@ void input_by_file()
     system("pause");
 } // Funkcija, kuri paima input failą ir išveda suhashuotas jame esančias vertes į kitą failą
 
-int main()
-{
-    int input_type;
+string get_hash(string input) {
+    string decimalString = convert_to_decimal(input);
+    string scb_dec = Scrambler(decimalString, input.size());
+    string scb_string = convert_to_string(scb_dec);
+    string hash = string_to_hex(scb_string);
 
-    do
-    {
-        cout << "To input by file enter [1]; To input by hand type [2];" << endl;
-        cout << "Input: ";
-        cin >> input_type;
-
-    } while (input_type < 1 || input_type > 3);
-
-    if (input_type == 2)
-    {
-        input_by_hand();
-    }
-    else
-    {
-        input_by_file();
-    }
-
-    return 0;
+    return hash;
 }
+
+// int main()
+// {
+//     int input_type;
+
+//     do
+//     {
+//         cout << "To input by file enter [1]; To input by hand type [2];" << endl;
+//         cout << "Input: ";
+//         cin >> input_type;
+
+//     } while (input_type < 1 || input_type > 3);
+
+//     if (input_type == 2)
+//     {
+//         input_by_hand();
+//     }
+//     else
+//     {
+//         input_by_file();
+//     }
+
+//     return 0;
+// }

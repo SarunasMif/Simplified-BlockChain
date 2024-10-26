@@ -21,3 +21,4 @@ string Scrambler(const string &input, int number_char);
 int getScrambleKey(vector<int> &values);
 string convert_to_string(const string &decimalString);
 string convert_to_decimal(const string &input);
+string get_hash(string input);
