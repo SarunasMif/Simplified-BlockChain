@@ -62,6 +62,7 @@
     "xstring": "cpp",
     "format": "cpp",
     "iostream": "cpp",
-    "ostream": "cpp"
+    "ostream": "cpp",
+    "map": "cpp"
   }
 }
