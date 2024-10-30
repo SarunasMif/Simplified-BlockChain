@@ -4,7 +4,7 @@
 
 using namespace std;
 
-// TODO: gen transaction_id(), finish gen_transaction()
+// 
 
 struct transaction {
 
@@ -47,6 +47,7 @@ struct user {
 
 map<string, transaction> transactions;
 map<string, user> users;
+vector<string> keys;
 
 string gen_hash(string input) {
     string hash = get_hash(input);
@@ -56,10 +57,11 @@ string gen_hash(string input) {
 
 string get_transactionID(string u1, string u2, float value, float fee) {
     string id;
-    id = u1 + u2 + to_string(value) + to_string(fee);
+    id = to_string(value) + to_string(fee) + u1 + u2;
 
     id = gen_hash(id);
 
+    cout << "Transaction_id: " << id << endl;
     return id;
 }
 
@@ -76,19 +78,37 @@ void reg_block() {
 
 }
 
+string gen_pkey() {
+    const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    random_device rd;
+    mt19937 generator(rd());
+    uniform_int_distribution<> dis(0, 9);
+
+    string public_key;
+
+    for (int i = 0; i < 10; i++) {
+        public_key += chars[dis(generator)];
+    }
+
+    keys.push_back(public_key);
+
+    return public_key;
+}
+
 void gen_user(int number_of_users) {
 
-    srand(time(NULL));
+    // srand(time(NULL));
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<int> dis(100, 100000);
 
-    string name_temp = "user";
-    string p_key_temp = "p_key";
+    string name_temp;
+    string p_key_temp;
 
     for (int i = 0; i < number_of_users; i++) {
         name_temp = "user" + to_string(i + 1);
-        p_key_temp = "p_key" + to_string(i + 1);
+        p_key_temp = gen_pkey();
         float balance = dis(gen);
 
         user User(name_temp, p_key_temp, balance);
@@ -98,7 +118,6 @@ void gen_user(int number_of_users) {
 
 void gen_transaction(int number_of_transactions) {
 
-    srand(time(NULL));
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<int> dis(0, users.size() - 1);
@@ -110,30 +129,15 @@ void gen_transaction(int number_of_transactions) {
     for (size_t i = 0; i < number_of_transactions; i++) {
 
         do {
-            u1 = dis(gen);
-            u2 = dis(gen);
-        }while (u2 == u1);
-
-        user1 = "p_key" + to_string(u1);
-        user2 = "p_key" + to_string(u2);
+            user1 = keys[dis(gen)];
+            user2 = keys[dis(gen)];
+        }while (user2 == user1);
 
         value1 = users[user1].balance;
         value2 = users[user2].balance;
 
-        // cout << "user1: " << user1 << "\n"
-        // << "value1: " << value1 << "\n";
-
-        // cout << "user2: " << user2 << "\n"
-        // << "value2: " << value2 << "\n";
-
-        flt_placeholder = get_rnd_float(0.0001, value1);
+        flt_placeholder = get_rnd_float(0.001, value1);
         fee = flt_placeholder * 0.02;
-
-        value1 = value1 - flt_placeholder - fee;
-        value2 += flt_placeholder;
-
-        users[user1].balance = value1;
-        users[user2].balance = value2;
 
         t_id = get_transactionID(user1, user2, flt_placeholder, fee);
 
@@ -141,6 +145,7 @@ void gen_transaction(int number_of_transactions) {
         transactions[Transaction.transaction_id] = Transaction;
 
         cout << "transaction generated: " << i << endl;
+        cout << "map size: " << transactions.size() << endl;
     }
 }
 
@@ -161,6 +166,9 @@ int main() {
         transaction.print_transaction();
         cout << endl << endl;
     }
+
+    cout << transactions.size() << endl;
+    cout << keys[0] << endl;
 
     system("pause");
 
