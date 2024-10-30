@@ -63,6 +63,7 @@
     "format": "cpp",
     "iostream": "cpp",
     "ostream": "cpp",
-    "map": "cpp"
+    "map": "cpp",
+    "random": "cpp"
   }
 }
