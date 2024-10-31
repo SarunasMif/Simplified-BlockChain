@@ -32,16 +32,20 @@ struct user {
     string name;
     string p_key;
     float balance;
+    float reserved;
+    float available_amount;
 
-    user() : name(""), p_key(""), balance(0.0f) {}
+    user() : name(""), p_key(""), balance(0.0f), reserved(0.0f), available_amount(0.0f) {}
 
     user(const string& name, const string& p_key, float balance) :
-    name(name), p_key(p_key), balance(balance) {}
+    name(name), p_key(p_key), balance(balance) { available_amount = balance; }
 
     void print_user() const {
         cout << "name: " << name << "\n" 
         << "publick_key: " << p_key << "\n"
-        << "balance: " << balance << endl;
+        << "balance: " << balance << "\n"
+        << "reserved: " << reserved << "\n"
+        << "available_amount: " << available_amount <<endl;
     }
 };
 
@@ -61,7 +65,6 @@ string get_transactionID(string u1, string u2, float value, float fee) {
 
     id = gen_hash(id);
 
-    cout << "Transaction_id: " << id << endl;
     return id;
 }
 
@@ -83,13 +86,17 @@ string gen_pkey() {
 
     random_device rd;
     mt19937 generator(rd());
-    uniform_int_distribution<> dis(0, 9);
+    uniform_int_distribution<> dis(0, 61);
 
     string public_key;
 
-    for (int i = 0; i < 10; i++) {
-        public_key += chars[dis(generator)];
-    }
+    do {
+        public_key.clear();
+        
+        for (int i = 0; i < 10; i++) {
+            public_key += chars[dis(generator)];
+        }
+    }while(find(keys.begin(), keys.end(), public_key) != keys.end());
 
     keys.push_back(public_key);
 
@@ -133,32 +140,46 @@ void gen_transaction(int number_of_transactions) {
             user2 = keys[dis(gen)];
         }while (user2 == user1);
 
-        value1 = users[user1].balance;
-        value2 = users[user2].balance;
+        value1 = users[user1].balance - users[user1].reserved;
+        // value2 = users[user2].balance - users[user2].reserved;
 
+        cout << "Current value: " << value1 << endl;
         flt_placeholder = get_rnd_float(0.001, value1);
         fee = flt_placeholder * 0.02;
 
+        if (flt_placeholder + fee > value1) {
+            while (flt_placeholder + fee > value1) {
+                flt_placeholder = get_rnd_float(0.001, value1);
+                fee = flt_placeholder * 0.02;
+            }
+        }
+
+        cout << "reserved_amount: " << users[user1].reserved << " ," 
+        << "available amount: " << users[user1].available_amount << "\n" << "\n";
+        users[user1].reserved = users[user1].reserved + flt_placeholder + fee;
+        users[user1].available_amount = users[user1].available_amount - flt_placeholder - fee;
+        cout << "reserved_amount: " << users[user1].reserved << " ," 
+        << "available amount: " << users[user1].available_amount << " ," 
+        "user: " << user1 << "\n" << "\n";
+        
         t_id = get_transactionID(user1, user2, flt_placeholder, fee);
 
         transaction Transaction(t_id, user1, user2, flt_placeholder, fee);
         transactions[Transaction.transaction_id] = Transaction;
 
-        cout << "transaction generated: " << i << endl;
-        cout << "map size: " << transactions.size() << endl;
     }
 }
 
 int main() {
 
-    gen_user(5);
+    gen_user(2);
 
     for (const auto& [id, user] : users) {
         user.print_user();
         cout << endl;
     }
 
-    gen_transaction(5);
+    gen_transaction(6);
 
     cout << endl;
 
@@ -167,8 +188,10 @@ int main() {
         cout << endl << endl;
     }
 
-    cout << transactions.size() << endl;
-    cout << keys[0] << endl;
+    for (const auto& [id, user] : users) {
+        user.print_user();
+        cout << endl;
+    }
 
     system("pause");
 
