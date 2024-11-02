@@ -6,31 +6,55 @@
 
 using namespace std;
 
-struct Block_Head {
-    string prev_block_hash;
-    time_t timestamp;
-    int Version;
-    string merkel_root_hash;
-    int nonce;
-    int difficulty;
-};
+vector<Block> Blockchain;
 
-struct Block_Body {
-    vector<string> transactions;
-};
+string get_MerkleRoot(vector<string> transactions);
+string get_block_hash();
 
 class Block {
-public:
-    Block_Head header;
-    Block_Body body;
+private:
+
+    string prev_block_hash; // use to get hash
+    time_t timestamp; // use to get hash
+    int Version; // use to get hash
+    string merkel_root_hash; // use to get hash
+    int difficulty; // set after getting block hash
+    vector<string> transactions;
     string hash;
 
-    //  Block(int ver, const std::string &prev, int diff, const std::vector<std::string> &txs)
-    //     : hash(""), header({ver, prev, "", std::time(nullptr), diff, 0}), body({txs}) {
-    //     header.merkleRootHash = calculateMerkleRoot(body.transactions);
-    //     hash = mineBlock();
-    // }
-    // Constructor
+    void mine_block() {
+        cout << "realize block mining" << endl;
+    }
+public:
+    int nonce;
+
+    Block(int Version, const vector<string>& transactions) : Version(Version), transactions(transactions) {
+
+        if (Blockchain.empty()) {
+            prev_block_hash = "";
+        }else {
+            prev_block_hash = Blockchain.back();
+        }
+        
+        time(&timestamp);
+
+        merkel_root_hash = get_MerkleRoot(transactions);
+
+        get_block_hash();
+
+        mine_block();
+
+        print_block();
+    }
+
+    void print_block() {
+        cout << "prev_block_hash: " << prev_block_hash << "\n"
+        << "timestamp: " << ctime(&timestamp) << "\n"
+        << "Version: " << Version << "\n"
+        << "merkle_root_hash: " << merkel_root_hash << "\n"
+        << "nonce: " << nonce << "\n"
+        << "difficulty: " << difficulty << "\n" << "\n"; 
+    }
 
     ~Block() {}
     // Deconstructor

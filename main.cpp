@@ -1,6 +1,7 @@
 #include <iostream>
 #include "includes.h"
 #include "gen_hash.h"
+#include "blockchain.h"
 
 using namespace std;
 
@@ -77,7 +78,7 @@ float get_rnd_float(float min, float max) {
     return dis(gen);
 }
 
-void reg_block() {
+void gen_block() {
 
 }
 
@@ -171,13 +172,14 @@ void gen_transaction(int number_of_transactions) {
 }
 
 int main() {
+    vector<string> tx;
 
     gen_user(2);
 
-    for (const auto& [id, user] : users) {
-        user.print_user();
-        cout << endl;
-    }
+    // for (const auto& [id, user] : users) {
+    //     user.print_user();
+    //     cout << endl;
+    // }
 
     gen_transaction(6);
 
@@ -185,14 +187,39 @@ int main() {
 
     for (const auto& [id, transaction] : transactions) {
         transaction.print_transaction();
+        tx.push_back(transaction.transaction_id);
         cout << endl << endl;
     }
 
-    for (const auto& [id, user] : users) {
-        user.print_user();
-        cout << endl;
-    }
+    int verion = 1;
+    string prev_hash = get_hash("xd");
+    int diff = 0;
 
+    Block block(verion, tx);
+
+    // for (const auto& [id, user] : users) {
+    //     user.print_user();
+    //     cout << endl;
+    // }
+
+    // string a, b, c;
+    // a = "HEllo world";
+    // b = "b";
+    // c = "c";
+
+    // cout << "string: " << a << "\n"
+    // << "hash: " << get_hash(a) << "\n"
+    // << "binary: " << get_binary_of_hash(get_hash(a)) << "\n" << "\n";
+
+    // cout << "string: " << b << "\n"
+    // << "hash: " << get_hash(b) << "\n"
+    // << "binary: " << get_binary_of_hash(get_hash(b)) << "\n" << "\n";
+
+    // cout << "string: " << c << "\n"
+    // << "hash: " << get_hash(c) << "\n"
+    // << "binary: " << get_binary_of_hash(get_hash(c)) << "\n" << "\n";
+
+    keys.clear();
     system("pause");
 
 }

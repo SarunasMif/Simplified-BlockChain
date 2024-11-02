@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <chrono>
 #include <time.h>
+#include <bitset>
 
 using namespace std::chrono;
 using namespace std;
@@ -22,3 +23,4 @@ int getScrambleKey(vector<int> &values);
 string convert_to_string(const string &decimalString);
 string convert_to_decimal(const string &input);
 string get_hash(string input);
+string get_binary_of_hash(string input);

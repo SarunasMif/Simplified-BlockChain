@@ -246,26 +246,12 @@ string get_hash(string input) {
     return hash;
 }
 
-// int main()
-// {
-//     int input_type;
+string get_binary_of_hash(string input) {
+    string binary, str_placeholder;
 
-//     do
-//     {
-//         cout << "To input by file enter [1]; To input by hand type [2];" << endl;
-//         cout << "Input: ";
-//         cin >> input_type;
+    for (size_t i= 0; i < input.size(); i++) {
+        binary += bitset<4>(input[i]).to_string();
+    }
 
-//     } while (input_type < 1 || input_type > 3);
-
-//     if (input_type == 2)
-//     {
-//         input_by_hand();
-//     }
-//     else
-//     {
-//         input_by_file();
-//     }
-
-//     return 0;
-// }
+    return binary;
+}
