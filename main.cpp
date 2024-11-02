@@ -7,48 +7,48 @@ using namespace std;
 
 vector<Block> Blockchain;
 
-struct transaction {
+// struct transaction {
 
-    string transaction_id;
-    string sender_pkey;
-    string getter_pkey;
-    float value;
-    float fee;
+//     string transaction_id;
+//     string sender_pkey;
+//     string getter_pkey;
+//     float value;
+//     float fee;
 
-    transaction() : transaction_id(""), sender_pkey(""), getter_pkey(""), value(0.0f), fee(0.0f) {}
+//     transaction() : transaction_id(""), sender_pkey(""), getter_pkey(""), value(0.0f), fee(0.0f) {}
 
-    transaction(const string& transaction_id, const string& sender_pkey, const string& getter_pkey, float value, float fee) :
-    transaction_id(transaction_id), sender_pkey(sender_pkey), getter_pkey(getter_pkey), value(value), fee(fee) {}
+//     transaction(const string& transaction_id, const string& sender_pkey, const string& getter_pkey, float value, float fee) :
+//     transaction_id(transaction_id), sender_pkey(sender_pkey), getter_pkey(getter_pkey), value(value), fee(fee) {}
 
-    void print_transaction() const {
-         cout << "Transaction_id: " << transaction_id << "\n"
-         << "Sender_key: " << sender_pkey << "\n"
-         << "Getter_key: " << getter_pkey << "\n"
-         << "Value: " << value << "\n"
-         << "Fee: " << fee << endl;
-    }
-};
+//     void print_transaction() const {
+//          cout << "Transaction_id: " << transaction_id << "\n"
+//          << "Sender_key: " << sender_pkey << "\n"
+//          << "Getter_key: " << getter_pkey << "\n"
+//          << "Value: " << value << "\n"
+//          << "Fee: " << fee << endl;
+//     }
+// };
 
-struct user {
-    string name;
-    string p_key;
-    float balance;
-    float reserved;
-    float available_amount;
+// struct user {
+//     string name;
+//     string p_key;
+//     float balance;
+//     float reserved;
+//     float available_amount;
 
-    user() : name(""), p_key(""), balance(0.0f), reserved(0.0f), available_amount(0.0f) {}
+//     user() : name(""), p_key(""), balance(0.0f), reserved(0.0f), available_amount(0.0f) {}
 
-    user(const string& name, const string& p_key, float balance) :
-    name(name), p_key(p_key), balance(balance) { available_amount = balance; }
+//     user(const string& name, const string& p_key, float balance) :
+//     name(name), p_key(p_key), balance(balance) { available_amount = balance; }
 
-    void print_user() const {
-        cout << "name: " << name << "\n" 
-        << "publick_key: " << p_key << "\n"
-        << "balance: " << balance << "\n"
-        << "reserved: " << reserved << "\n"
-        << "available_amount: " << available_amount <<endl;
-    }
-};
+//     void print_user() const {
+//         cout << "name: " << name << "\n" 
+//         << "publick_key: " << p_key << "\n"
+//         << "balance: " << balance << "\n"
+//         << "reserved: " << reserved << "\n"
+//         << "available_amount: " << available_amount <<endl;
+//     }
+// };
 
 map<string, transaction> transactions;
 map<string, user> users;
@@ -60,7 +60,7 @@ string gen_hash(string input) {
     return hash;
 }
 
-string get_transactionID(string u1, string u2, float value, float fee) {
+string get_transactionID(string u1, string u2, double value, double fee) {
     string id;
     id = to_string(value) + to_string(fee) + u1 + u2;
 
@@ -69,11 +69,11 @@ string get_transactionID(string u1, string u2, float value, float fee) {
     return id;
 }
 
-float get_rnd_float(float min, float max) {
+double get_rnd_float(double min, double max) {
     random_device rd;
     mt19937 gen(rd());
 
-    uniform_real_distribution<float> dis(min, max);
+    uniform_real_distribution<double> dis(min, max);
 
     return dis(gen);
 }
@@ -117,7 +117,7 @@ void gen_user(int number_of_users) {
     for (int i = 0; i < number_of_users; i++) {
         name_temp = "user" + to_string(i + 1);
         p_key_temp = gen_pkey();
-        float balance = dis(gen);
+        double balance = dis(gen);
 
         user User(name_temp, p_key_temp, balance);
         users[User.p_key] = User;
@@ -132,7 +132,7 @@ void gen_transaction(int number_of_transactions) {
 
     string user1, user2, t_id;
     int u1, u2;
-    float flt_placeholder, value1, value2, fee;
+    double flt_placeholder, value1, value2, fee;
 
     for (size_t i = 0; i < number_of_transactions; i++) {
 
@@ -144,7 +144,7 @@ void gen_transaction(int number_of_transactions) {
         value1 = users[user1].balance - users[user1].reserved;
         // value2 = users[user2].balance - users[user2].reserved;
 
-        cout << "Current value: " << value1 << endl;
+        // cout << "Current value: " << value1 << endl;
         flt_placeholder = get_rnd_float(0.001, value1);
         fee = flt_placeholder * 0.02;
 
@@ -155,13 +155,13 @@ void gen_transaction(int number_of_transactions) {
             }
         }
 
-        cout << "reserved_amount: " << users[user1].reserved << " ," 
-        << "available amount: " << users[user1].available_amount << "\n" << "\n";
+        // cout << "reserved_amount: " << users[user1].reserved << " ," 
+        // << "available amount: " << users[user1].available_amount << "\n" << "\n";
         users[user1].reserved = users[user1].reserved + flt_placeholder + fee;
         users[user1].available_amount = users[user1].available_amount - flt_placeholder - fee;
-        cout << "reserved_amount: " << users[user1].reserved << " ," 
-        << "available amount: " << users[user1].available_amount << " ," 
-        "user: " << user1 << "\n" << "\n";
+        // cout << "reserved_amount: " << users[user1].reserved << " ," 
+        // << "available amount: " << users[user1].available_amount << " ," 
+        // "user: " << user1 << "\n" << "\n";
         
         t_id = get_transactionID(user1, user2, flt_placeholder, fee);
 
@@ -171,38 +171,68 @@ void gen_transaction(int number_of_transactions) {
     }
 }
 
-int main() {
+void insert_blocks() {
     vector<string> tx;
+    int version = 1;
+    string prev_hash;
+    int diff = 0;
+    int i = 0;
 
     gen_user(2);
+    gen_transaction(10);
+
+    for (const auto& [id, transaction] : transactions) {
+        tx.push_back(transaction.transaction_id);
+        i++;
+        
+        if (i == 5 || id == transactions.rbegin()->first) {
+            if (Blockchain.empty()) {
+                prev_hash = "";
+            }else {
+                prev_hash = Blockchain.back().hash;
+            }
+
+            Block new_block(version, tx, prev_hash);
+            Blockchain.push_back(new_block);
+
+            tx.clear();
+            i = 0;
+        }
+    }
+}
+
+int main() {
+    // vector<string> tx;
+
+    // gen_user(2);
 
     // for (const auto& [id, user] : users) {
     //     user.print_user();
     //     cout << endl;
     // }
 
-    gen_transaction(6);
+    // gen_transaction(6);
 
-    cout << endl;
+    // cout << endl;
 
-    for (const auto& [id, transaction] : transactions) {
-        transaction.print_transaction();
-        tx.push_back(transaction.transaction_id);
-        cout << endl << endl;
-    }
+    // for (const auto& [id, transaction] : transactions) {
+    //     transaction.print_transaction();
+    //     // tx.push_back(transaction.transaction_id);
+    //     cout << endl << endl;
+    // }
 
-    int verion = 1;
-    string prev_hash;
-    int diff = 0;
+    // int verion = 1;
+    // string prev_hash;
+    // int diff = 0;
 
-    if (Blockchain.empty()) {
-        prev_hash = "";
-    }else {
-        prev_hash = Blockchain.back().hash;
-    }
+    // if (Blockchain.empty()) {
+    //     prev_hash = "";
+    // }else {
+    //     prev_hash = Blockchain.back().hash;
+    // }
         
 
-    Block block(verion, tx, prev_hash);
+    // Block block(verion, tx, prev_hash);
 
     // for (const auto& [id, user] : users) {
     //     user.print_user();
@@ -225,7 +255,21 @@ int main() {
     // cout << "string: " << c << "\n"
     // << "hash: " << get_hash(c) << "\n"
     // << "binary: " << get_binary_of_hash(get_hash(c)) << "\n" << "\n";
+    insert_blocks();
 
+    for (const auto& [id, user] : users) {
+        user.print_user();
+        cout << endl;
+    }
+
+    for (const auto& [id, transaction] : transactions) {
+        transaction.print_transaction();
+        // tx.push_back(transaction.transaction_id);
+        cout << endl << endl;
+    }
+
+    Blockchain[0].mine_block();
+    Blockchain[1].mine_block();
     keys.clear();
     system("pause");
 

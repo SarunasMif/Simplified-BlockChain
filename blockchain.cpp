@@ -1,5 +1,6 @@
 #include "blockchain.h"
 #include "gen_hash.h"
+#include "includes.h"
 
 using namespace std;
 
@@ -17,7 +18,7 @@ string get_MerkleRoot(vector<string> transactions) {
 
         vector<string> new_transactions;
 
-        for (size_t i = 0; i << transactions_clone.size(); i += 2) {
+        for (size_t i = 0; i < transactions_clone.size(); i += 2) {
             string str_placeholder = get_hash(transactions_clone[i] + transactions_clone[i + 1]);
             new_transactions.push_back(str_placeholder);
         }// Loop that calculates the Merkle Root Hash
@@ -40,3 +41,43 @@ int isOne(const string& input) {
 
     return num_of_0;
 }
+
+void validate_transactions(const vector<string>& Transactions) {
+    double value, fee;
+    string user1, user2;
+
+    size_t nmb_tx = Transactions.size();
+
+    for (size_t i = 0; i < nmb_tx; i++) {
+        auto tx = transactions.find(Transactions[i]);
+
+      
+        value = tx->second.value;
+        user1 = tx->second.sender_pkey;
+        user2 = tx->second.getter_pkey;
+        cout << "value: " << value << endl;
+        cout << "getter: " << user2 << endl;
+        cout << "sender: " << user1 << endl << endl;
+        
+
+        fee = value * 0.02;
+
+        auto getter = users.find(user2);
+        auto sender = users.find(user1);
+
+        sender->second.balance -= value + fee;
+        sender->second.reserved -= value + fee;
+
+        getter->second.balance += value;
+
+        cout << "user: " << user1 << "\n"
+        << "value: " << sender->second.balance << "\n"
+        << "reserved: " << sender->second.reserved << "\n" << "\n";
+
+        cout << "user: " << user2 << "\n"
+        << "value: " << getter->second.balance << "\n"
+        << "reserved: " << getter->second.reserved << "\n" << "\n";
+    }
+
+    clear_transactions();
+}// kazkodel apvalina
