@@ -65,6 +65,7 @@
     "ostream": "cpp",
     "map": "cpp",
     "random": "cpp",
-    "vector": "cpp"
+    "vector": "cpp",
+    "string": "cpp"
   }
 }

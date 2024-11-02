@@ -27,3 +27,16 @@ string get_MerkleRoot(vector<string> transactions) {
 
     return transactions_clone[0]; // Returns merkle root hash
 }
+
+int isOne(const string& input) {
+    int num_of_0 = 0;
+
+    for (char c : input) {
+        if (c == '1') {
+            break;
+        }
+        num_of_0++;
+    }
+
+    return num_of_0;
+}

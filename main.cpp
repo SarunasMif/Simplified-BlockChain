@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// 
+vector<Block> Blockchain;
 
 struct transaction {
 
@@ -192,10 +192,17 @@ int main() {
     }
 
     int verion = 1;
-    string prev_hash = get_hash("xd");
+    string prev_hash;
     int diff = 0;
 
-    Block block(verion, tx);
+    if (Blockchain.empty()) {
+        prev_hash = "";
+    }else {
+        prev_hash = Blockchain.back().hash;
+    }
+        
+
+    Block block(verion, tx, prev_hash);
 
     // for (const auto& [id, user] : users) {
     //     user.print_user();
