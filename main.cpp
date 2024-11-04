@@ -1,7 +1,7 @@
 #include <iostream>
 #include "includes.h"
 #include "gen_hash.h"
-#include "blockchain.h"
+#include "block.h"
 
 using namespace std;
 
@@ -201,6 +201,32 @@ void insert_blocks() {
     }
 }
 
+void mine_blocks() {
+    int candidate_count = Blockchain.size();
+
+    int mine_attempts = 5;
+    bool block_mined = false;
+
+    while (block_mined == false) {
+        for (int i = 0; i < candidate_count; i++) {
+            cout << "Trying to mine with candidate: " << i + 1 << endl;
+
+            int candidate = rand() % candidate_count;
+
+            block_mined =Blockchain[candidate].mine_block(mine_attempts);
+
+            if (block_mined == true) {
+                cout << "Block mined with candidate: " << candidate << endl;
+                return;
+            }
+        }
+
+        mine_attempts *= 2;
+    }
+
+
+} // expand so that it generates candidates and adds the to temp vector
+
 int main() {
     // vector<string> tx;
 
@@ -256,20 +282,38 @@ int main() {
     // << "hash: " << get_hash(c) << "\n"
     // << "binary: " << get_binary_of_hash(get_hash(c)) << "\n" << "\n";
     insert_blocks();
+    mine_blocks();
 
-    for (const auto& [id, user] : users) {
-        user.print_user();
-        cout << endl;
-    }
+    // for (const auto& [id, user] : users) {
+    //     user.print_user();
+    //     cout << endl;
+    // }
 
-    for (const auto& [id, transaction] : transactions) {
-        transaction.print_transaction();
-        // tx.push_back(transaction.transaction_id);
-        cout << endl << endl;
-    }
+    // for (const auto& [id, transaction] : transactions) {
+    //     transaction.print_transaction();
+    //     // tx.push_back(transaction.transaction_id);
+    //     cout << endl << endl;
+    // }
 
-    Blockchain[0].mine_block();
-    Blockchain[1].mine_block();
+    // int mine_attempt = 5;
+    // bool block_mined = false;
+
+    // // while (block_mined == false) {
+
+    // //     block_mined = Blockchain[0].mine_block(mine_attempt);
+
+    // //     if (block_mined == false) {
+    // //         mine_attempt++;
+    // //     }
+    // // }
+
+    // do {
+    //     block_mined = Blockchain[0].mine_block(mine_attempt);
+
+    //     if (block_mined == false) {
+    //         mine_attempt++;
+    //     }
+    // } while (block_mined == false);
     keys.clear();
     system("pause");
 

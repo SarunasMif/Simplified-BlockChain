@@ -1,6 +1,7 @@
-#include "blockchain.h"
+#include "block.h"
 #include "gen_hash.h"
 #include "includes.h"
+#include "blockchain.h"
 
 using namespace std;
 
@@ -42,7 +43,7 @@ int isOne(const string& input) {
     return num_of_0;
 }
 
-void validate_transactions(const vector<string>& Transactions) {
+void validate_transactions(const vector<string>& Transactions, Block& block) {
     double value, fee;
     string user1, user2;
 
@@ -55,9 +56,9 @@ void validate_transactions(const vector<string>& Transactions) {
         value = tx->second.value;
         user1 = tx->second.sender_pkey;
         user2 = tx->second.getter_pkey;
-        cout << "value: " << value << endl;
-        cout << "getter: " << user2 << endl;
-        cout << "sender: " << user1 << endl << endl;
+        // cout << "value: " << value << endl;
+        // cout << "getter: " << user2 << endl;
+        // cout << "sender: " << user1 << endl << endl;
         
 
         fee = value * 0.02;
@@ -70,14 +71,14 @@ void validate_transactions(const vector<string>& Transactions) {
 
         getter->second.balance += value;
 
-        cout << "user: " << user1 << "\n"
-        << "value: " << sender->second.balance << "\n"
-        << "reserved: " << sender->second.reserved << "\n" << "\n";
+        // cout << "user: " << user1 << "\n"
+        // << "value: " << sender->second.balance << "\n"
+        // << "reserved: " << sender->second.reserved << "\n" << "\n";
 
-        cout << "user: " << user2 << "\n"
-        << "value: " << getter->second.balance << "\n"
-        << "reserved: " << getter->second.reserved << "\n" << "\n";
+        // cout << "user: " << user2 << "\n"
+        // << "value: " << getter->second.balance << "\n"
+        // << "reserved: " << getter->second.reserved << "\n" << "\n";
     }
 
-    clear_transactions();
+    block.clear_transactions();
 }// kazkodel apvalina

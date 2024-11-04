@@ -1,3 +1,6 @@
+#ifndef GENHASH_H
+#define GENHASH_H
+
 #include <iostream>
 #include <unordered_map>
 #include <fstream>
@@ -24,3 +27,5 @@ string convert_to_string(const string &decimalString);
 string convert_to_decimal(const string &input);
 string get_hash(string input);
 string get_binary_of_hash(string input);
+
+#endif
