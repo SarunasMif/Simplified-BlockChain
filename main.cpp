@@ -105,7 +105,7 @@ void gen_transaction(int number_of_transactions) {
 
         if (flt_placeholder + fee > value1) {
             while (flt_placeholder + fee > value1) {
-                flt_placeholder = get_rnd_long(100, 10000);
+                flt_placeholder = get_rnd_long(100, 1000);
                 fee = flt_placeholder * 0.1;
             }
         }
