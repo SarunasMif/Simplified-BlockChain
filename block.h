@@ -73,25 +73,6 @@ public:
         int int_placeholder;
         bool block_mined = false;
 
-        // while (block_mined == false) {
-        //     string new_input;
-
-        //     for (int i = 0; i < 10 + nonce; i++) {
-        //         new_input += chars[dis(generator)];
-        //     }
-
-        //     string hash_bin = get_binary_of_hash(new_input);
-        //     int_placeholder = isOne(hash_bin);
-
-        //     cout << int_placeholder << endl;
-        //     if (int_placeholder >= 1) {
-        //         block_mined = true;
-        //         validate_transactions(transactions, *this);
-        //     } else {
-        //         nonce++;
-        //     }
-        // }
-
         for (int i = 0; i < mine_attempt; i++) {
             string new_input;
 
@@ -115,15 +96,16 @@ public:
         cout << "block mining failed!" << endl;
         return false;
 
-    }
+    }// Move this function somewhere else
 
     int get_difficulty() const { return difficulty; }
+    const vector<string>& get_transactions() const { return transactions; }
+    string get_blockhash() const { return hash; }
+    string get_prevblock_hash() const { return prev_block_hash; }
+    // Getters
 
-    void clear_transactions() {
-        transactions.clear();
-
-        cout << "Size of vector: " << transactions.size() << endl;
-    }
+    void set_prevhash(string hash){ prev_block_hash = hash; }
+    // Setters
 
     ~Block() {}
     // Deconstructor

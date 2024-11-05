@@ -44,7 +44,7 @@ int isOne(const string& input) {
 }
 
 void validate_transactions(const vector<string>& Transactions, Block& block) {
-    double value, fee;
+    long value, fee;
     string user1, user2;
 
     size_t nmb_tx = Transactions.size();
@@ -56,12 +56,12 @@ void validate_transactions(const vector<string>& Transactions, Block& block) {
         value = tx->second.value;
         user1 = tx->second.sender_pkey;
         user2 = tx->second.getter_pkey;
-        // cout << "value: " << value << endl;
-        // cout << "getter: " << user2 << endl;
-        // cout << "sender: " << user1 << endl << endl;
+        cout << "value: " << value << endl;
+        cout << "getter: " << user2 << endl;
+        cout << "sender: " << user1 << endl << endl;
         
 
-        fee = value * 0.02;
+        fee = value * 0.1;
 
         auto getter = users.find(user2);
         auto sender = users.find(user1);
@@ -71,14 +71,12 @@ void validate_transactions(const vector<string>& Transactions, Block& block) {
 
         getter->second.balance += value;
 
-        // cout << "user: " << user1 << "\n"
-        // << "value: " << sender->second.balance << "\n"
-        // << "reserved: " << sender->second.reserved << "\n" << "\n";
+        cout << "user: " << user1 << "\n"
+        << "value: " << sender->second.balance << "\n"
+        << "reserved: " << sender->second.reserved << "\n" << "\n";
 
-        // cout << "user: " << user2 << "\n"
-        // << "value: " << getter->second.balance << "\n"
-        // << "reserved: " << getter->second.reserved << "\n" << "\n";
+        cout << "user: " << user2 << "\n"
+        << "value: " << getter->second.balance << "\n"
+        << "reserved: " << getter->second.reserved << "\n" << "\n";
     }
-
-    block.clear_transactions();
 }// kazkodel apvalina

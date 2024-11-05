@@ -7,52 +7,10 @@ using namespace std;
 
 vector<Block> Blockchain;
 
-// struct transaction {
-
-//     string transaction_id;
-//     string sender_pkey;
-//     string getter_pkey;
-//     float value;
-//     float fee;
-
-//     transaction() : transaction_id(""), sender_pkey(""), getter_pkey(""), value(0.0f), fee(0.0f) {}
-
-//     transaction(const string& transaction_id, const string& sender_pkey, const string& getter_pkey, float value, float fee) :
-//     transaction_id(transaction_id), sender_pkey(sender_pkey), getter_pkey(getter_pkey), value(value), fee(fee) {}
-
-//     void print_transaction() const {
-//          cout << "Transaction_id: " << transaction_id << "\n"
-//          << "Sender_key: " << sender_pkey << "\n"
-//          << "Getter_key: " << getter_pkey << "\n"
-//          << "Value: " << value << "\n"
-//          << "Fee: " << fee << endl;
-//     }
-// };
-
-// struct user {
-//     string name;
-//     string p_key;
-//     float balance;
-//     float reserved;
-//     float available_amount;
-
-//     user() : name(""), p_key(""), balance(0.0f), reserved(0.0f), available_amount(0.0f) {}
-
-//     user(const string& name, const string& p_key, float balance) :
-//     name(name), p_key(p_key), balance(balance) { available_amount = balance; }
-
-//     void print_user() const {
-//         cout << "name: " << name << "\n" 
-//         << "publick_key: " << p_key << "\n"
-//         << "balance: " << balance << "\n"
-//         << "reserved: " << reserved << "\n"
-//         << "available_amount: " << available_amount <<endl;
-//     }
-// };
-
-map<string, transaction> transactions;
+map<string, transaction> transactions; // kai blokas iskastas is cia istrint transakcijas
 map<string, user> users;
 vector<string> keys;
+vector<string> all_txo;
 
 string gen_hash(string input) {
     string hash = get_hash(input);
@@ -60,7 +18,7 @@ string gen_hash(string input) {
     return hash;
 }
 
-string get_transactionID(string u1, string u2, double value, double fee) {
+string get_transactionID(string u1, string u2, long value, long fee) {
     string id;
     id = to_string(value) + to_string(fee) + u1 + u2;
 
@@ -69,17 +27,13 @@ string get_transactionID(string u1, string u2, double value, double fee) {
     return id;
 }
 
-double get_rnd_float(double min, double max) {
+long get_rnd_float(long min, long max) {
     random_device rd;
     mt19937 gen(rd());
 
-    uniform_real_distribution<double> dis(min, max);
+    uniform_int_distribution<long> dis(min, max);
 
     return dis(gen);
-}
-
-void gen_block() {
-
 }
 
 string gen_pkey() {
@@ -106,7 +60,6 @@ string gen_pkey() {
 
 void gen_user(int number_of_users) {
 
-    // srand(time(NULL));
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<int> dis(100, 100000);
@@ -117,7 +70,7 @@ void gen_user(int number_of_users) {
     for (int i = 0; i < number_of_users; i++) {
         name_temp = "user" + to_string(i + 1);
         p_key_temp = gen_pkey();
-        double balance = dis(gen);
+        long balance = dis(gen);
 
         user User(name_temp, p_key_temp, balance);
         users[User.p_key] = User;
@@ -132,9 +85,11 @@ void gen_transaction(int number_of_transactions) {
 
     string user1, user2, t_id;
     int u1, u2;
-    double flt_placeholder, value1, value2, fee;
+    long flt_placeholder, value1, value2, fee;
 
     for (size_t i = 0; i < number_of_transactions; i++) {
+
+        // cout << "Generating transaction: " << i + 1 << endl;
 
         do {
             user1 = keys[dis(gen)];
@@ -145,78 +100,102 @@ void gen_transaction(int number_of_transactions) {
         // value2 = users[user2].balance - users[user2].reserved;
 
         // cout << "Current value: " << value1 << endl;
-        flt_placeholder = get_rnd_float(0.001, value1);
-        fee = flt_placeholder * 0.02;
+        flt_placeholder = get_rnd_float(10, value1);
+        fee = flt_placeholder * 0.1;
 
         if (flt_placeholder + fee > value1) {
             while (flt_placeholder + fee > value1) {
-                flt_placeholder = get_rnd_float(0.001, value1);
-                fee = flt_placeholder * 0.02;
+                flt_placeholder = get_rnd_float(10, value1);
+                fee = flt_placeholder * 0.1;
             }
         }
 
         // cout << "reserved_amount: " << users[user1].reserved << " ," 
-        // << "available amount: " << users[user1].available_amount << "\n" << "\n";
+        // << "\n" << "\n";
         users[user1].reserved = users[user1].reserved + flt_placeholder + fee;
-        users[user1].available_amount = users[user1].available_amount - flt_placeholder - fee;
-        // cout << "reserved_amount: " << users[user1].reserved << " ," 
-        // << "available amount: " << users[user1].available_amount << " ," 
+        // cout << "reserved_amount: " << users[user1].reserved << " ,"  
         // "user: " << user1 << "\n" << "\n";
         
         t_id = get_transactionID(user1, user2, flt_placeholder, fee);
 
         transaction Transaction(t_id, user1, user2, flt_placeholder, fee);
         transactions[Transaction.transaction_id] = Transaction;
+        all_txo.push_back(t_id);
 
-    }
-}
-
-void insert_blocks() {
-    vector<string> tx;
-    int version = 1;
-    string prev_hash;
-    int diff = 0;
-    int i = 0;
-
-    gen_user(2);
-    gen_transaction(10);
-
-    for (const auto& [id, transaction] : transactions) {
-        tx.push_back(transaction.transaction_id);
-        i++;
-        
-        if (i == 5 || id == transactions.rbegin()->first) {
-            if (Blockchain.empty()) {
-                prev_hash = "";
-            }else {
-                prev_hash = Blockchain.back().hash;
-            }
-
-            Block new_block(version, tx, prev_hash);
-            Blockchain.push_back(new_block);
-
-            tx.clear();
-            i = 0;
-        }
     }
 }
 
 void mine_blocks() {
-    int candidate_count = Blockchain.size();
+    vector<Block> block_candidates;
+    vector<string> used_transactions;
+    vector<string> candidate_txo;
+    int candidate_count = 5;
+    int transaction_count = 3;
+    bool no_duplicates = false;
+
+    for (int i = 0; i < candidate_count; i++) {
+        // cout << "making candidate: " << i + 1 << endl;
+        vector<string> txo;
+        map<string, transaction> TXO;
+
+        // cout << "num of txo: " << all_txo.size() << endl;
+        for (int j = 0; j < transaction_count; j++) {
+            // txo.push_back(all_txo[rand() % all_txo.size()]);
+            string str_placeholder = all_txo[rand() % all_txo.size()];
+            
+            while (find(txo.begin(), txo.end(), str_placeholder) != txo.end()) {
+                str_placeholder = all_txo[rand() % all_txo.size()];
+            }
+
+            TXO[str_placeholder] = transactions[str_placeholder];
+            txo.push_back(str_placeholder);
+        }
+
+        Block candidate(1, txo, "temp");
+        block_candidates.push_back(candidate);
+        txo.clear();
+    }
 
     int mine_attempts = 5;
     bool block_mined = false;
+    int max_attempts = 50000; // galimai istrint
 
     while (block_mined == false) {
         for (int i = 0; i < candidate_count; i++) {
-            cout << "Trying to mine with candidate: " << i + 1 << endl;
+            // cout << "Trying to mine with candidate: " << i + 1 << endl;
 
             int candidate = rand() % candidate_count;
 
-            block_mined =Blockchain[candidate].mine_block(mine_attempts);
+            used_transactions = block_candidates[candidate].get_transactions();
+            block_mined = block_candidates[candidate].mine_block(mine_attempts);
 
             if (block_mined == true) {
-                cout << "Block mined with candidate: " << candidate << endl;
+                // cout << "Block mined with candidate: " << i + 1 << endl;
+                // cout << "num of txo: " << all_txo.size() << endl;
+
+                for (const auto& transaction : used_transactions) {
+                    auto it = find(all_txo.begin(), all_txo.end(), transaction);
+
+                    // cout << "Looking for transaction: " << transaction << endl;
+
+                    if (it != all_txo.end()) {
+                        // cout << "Deleting transaction: " << transaction << endl;
+                        all_txo.erase(it);
+                    }else {
+                         //cout << "transaction not found" << endl;
+                    }
+                }
+                // cout << "num of txo: " << all_txo.size() << endl;
+
+                // Blockchain.push_back(block_candidates[candidate]);
+                if (Blockchain.size() == 0) {
+                    block_candidates[candidate].set_prevhash("");
+                    Blockchain.push_back(block_candidates[candidate]);
+                }else {
+                    int blockchain_size = Blockchain.size();
+                    block_candidates[candidate].set_prevhash(Blockchain[blockchain_size - 1].hash);
+                    Blockchain.push_back(block_candidates[candidate]);
+                }
                 return;
             }
         }
@@ -225,95 +204,35 @@ void mine_blocks() {
     }
 
 
+
+    block_candidates.clear();
 } // expand so that it generates candidates and adds the to temp vector
 
+void print_transaction(string txo_hash) {
+
+}
+
 int main() {
-    // vector<string> tx;
+    gen_user(2);
+    gen_transaction(6);
 
-    // gen_user(2);
+    do {
+        mine_blocks();
+    } while (all_txo.size() != 0);
 
-    // for (const auto& [id, user] : users) {
-    //     user.print_user();
-    //     cout << endl;
-    // }
+    for (const auto& [id, user] : users) {
+        cout << endl;
+        user.print_user();
+        cout << endl;
+    }
 
-    // gen_transaction(6);
+    cout << "Block in blockchain: " << Blockchain.size() << endl;
 
-    // cout << endl;
+    for (const auto& block : Blockchain) {
+        cout << "Block hash: " << block.hash << endl;
+        cout << "Previous block hash: " << block.get_prevblock_hash() << endl << endl;
+    }
 
-    // for (const auto& [id, transaction] : transactions) {
-    //     transaction.print_transaction();
-    //     // tx.push_back(transaction.transaction_id);
-    //     cout << endl << endl;
-    // }
-
-    // int verion = 1;
-    // string prev_hash;
-    // int diff = 0;
-
-    // if (Blockchain.empty()) {
-    //     prev_hash = "";
-    // }else {
-    //     prev_hash = Blockchain.back().hash;
-    // }
-        
-
-    // Block block(verion, tx, prev_hash);
-
-    // for (const auto& [id, user] : users) {
-    //     user.print_user();
-    //     cout << endl;
-    // }
-
-    // string a, b, c;
-    // a = "HEllo world";
-    // b = "b";
-    // c = "c";
-
-    // cout << "string: " << a << "\n"
-    // << "hash: " << get_hash(a) << "\n"
-    // << "binary: " << get_binary_of_hash(get_hash(a)) << "\n" << "\n";
-
-    // cout << "string: " << b << "\n"
-    // << "hash: " << get_hash(b) << "\n"
-    // << "binary: " << get_binary_of_hash(get_hash(b)) << "\n" << "\n";
-
-    // cout << "string: " << c << "\n"
-    // << "hash: " << get_hash(c) << "\n"
-    // << "binary: " << get_binary_of_hash(get_hash(c)) << "\n" << "\n";
-    insert_blocks();
-    mine_blocks();
-
-    // for (const auto& [id, user] : users) {
-    //     user.print_user();
-    //     cout << endl;
-    // }
-
-    // for (const auto& [id, transaction] : transactions) {
-    //     transaction.print_transaction();
-    //     // tx.push_back(transaction.transaction_id);
-    //     cout << endl << endl;
-    // }
-
-    // int mine_attempt = 5;
-    // bool block_mined = false;
-
-    // // while (block_mined == false) {
-
-    // //     block_mined = Blockchain[0].mine_block(mine_attempt);
-
-    // //     if (block_mined == false) {
-    // //         mine_attempt++;
-    // //     }
-    // // }
-
-    // do {
-    //     block_mined = Blockchain[0].mine_block(mine_attempt);
-
-    //     if (block_mined == false) {
-    //         mine_attempt++;
-    //     }
-    // } while (block_mined == false);
     keys.clear();
     system("pause");
 
