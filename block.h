@@ -1,14 +1,9 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <ctime>
-#include <sstream>
-#include <random>
 #include "gen_hash.h"
 #include "blockchain.h"
+#include "includes.h"
 
 using namespace std;
 
@@ -17,20 +12,26 @@ void clear_transactions();
 class Block {
 private:
 
-    string prev_block_hash; // use to get hash
-    time_t timestamp; // use to get hash
-    int Version; // use to get hash
-    string merkel_root_hash; // use to get hash
-    int difficulty; // set after getting block hash
-    vector<string> transactions;
+    string prev_block_hash;                 // Holds the hash of the previous block in the blockchain
+    time_t timestamp;                       // Holds the time and date of the the block got mined
+    int Version;                            // Version of the blockchain
+    string merkel_root_hash;                // Holds the Merkle Root of the block
+    int difficulty;                         // Holds the number of required zeroes at the beggining of the hash(binary)
+    vector<string> transactions;            // Holds the transaction id's in a vector. Why? No comment. 
+    map<string, transaction> TRANSACTIONS;  // Holds the transactions in the map
+    string hash;                            // Holds the hash of the block
+    int nonce;                              // Holds the number that was required to mine the block (attempts kinda)
     
 public:
-    int nonce;
-    string hash;
 
     Block() : prev_block_hash(""), timestamp(0), Version(0), merkel_root_hash(""), difficulty(4), nonce(0), hash("") {}
 
-    Block(int Version, const vector<string>& transactions, const string& prev_block_hash) : Version(Version), transactions(transactions), prev_block_hash(prev_block_hash) {
+    Block(int Version, const map<string, transaction> TRANSACTIONS, const string& prev_block_hash) : Version(Version), TRANSACTIONS(TRANSACTIONS), prev_block_hash(prev_block_hash) {
+
+        for (auto it = TRANSACTIONS.begin(); it != TRANSACTIONS.end(); it++) {
+            transactions.push_back(it->first);
+        }
+        // Inserts the keys of the transaction into the transactions vector, because I can not read
 
         time(&timestamp);
 
@@ -40,70 +41,73 @@ public:
         difficulty = 4;
 
         nonce = 0;
-
-        get_block_hash();
-
-        print_block();
     }
+    // Constructors
 
     void get_block_hash() {
-        hash = merkel_root_hash + prev_block_hash + to_string(timestamp) + to_string(Version) + to_string(difficulty);
+        hash = merkel_root_hash + prev_block_hash + to_string(timestamp) + to_string(Version) + to_string(difficulty) + to_string(nonce);
 
         hash = get_hash(hash);
-    }// should be in private
+    }
+    // Genrates the hash of the block
 
     void print_block() {
-        cout << "prev_block_hash: " << prev_block_hash << "\n"
-        << "timestamp: " << ctime(&timestamp)
-        << "Version: " << Version << "\n"
-        << "merkle_root_hash: " << merkel_root_hash << "\n"
-        << "nonce: " << nonce << "\n"
-        << "difficulty: " << difficulty << "\n" 
-        << "blockhash: "<< hash << "\n" << "\n"; 
-    }
 
-    bool mine_block(int mine_attempt) {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        int num_txo = transactions.size();
+        float Value, fees;
+        float plh;
 
-        random_device rd;
-        mt19937 generator(rd());
-        uniform_int_distribution<> dis(0, 61);
-
-        string input;
-        int int_placeholder;
-        bool block_mined = false;
-
-        for (int i = 0; i < mine_attempt; i++) {
-            string new_input;
-
-            for (int i = 0; i < 10 + nonce; i++) {
-                new_input += chars[dis(generator)];
-            }
-
-            string hash_bin = get_binary_of_hash(new_input);
-            int_placeholder = isOne(hash_bin);
-
-            cout << int_placeholder << endl;
-            if (int_placeholder >= 3) {
-                block_mined = true;
-                validate_transactions(transactions, *this);
-                return true;
-            } else {
-                nonce++;
-            }
+        for (auto it = TRANSACTIONS.begin(); it != TRANSACTIONS.end(); it++) {
+            plh = it->second.value;
+            Value += plh;
+            plh = it->second.fee;
+            fees += plh;
         }
 
-        cout << "block mining failed!" << endl;
-        return false;
+        Value = Value / 100;
+        fees = fees / 100;
 
-    }// Move this function somewhere else
+        cout
+        << "------------------------------------------------------------------------------------------" << endl 
+        << "Hash                  | " << hash << "\n" 
+        << "------------------------------------------------------------------------------------------" << endl
+        << "Transactions          | " << num_txo << "\n"
+        << "------------------------------------------------------------------------------------------" << endl
+        << "Value                 | " << Value << " USD" << "\n"
+        << "------------------------------------------------------------------------------------------" << endl
+        << "Fees                  | " << fees << " USD" << "\n"
+        << "------------------------------------------------------------------------------------------" << endl
+        << "Mined On              | " << ctime(&timestamp)
+        << "------------------------------------------------------------------------------------------" << endl
+        << "Version               | " << Version << "\n"
+        << "------------------------------------------------------------------------------------------" << endl
+        << "Difficulty            | " << difficulty << "\n"
+        << "------------------------------------------------------------------------------------------" << endl
+        << "Nonce                 | " << nonce << "\n"
+        << "------------------------------------------------------------------------------------------" << endl
+        << "Merkle Root           | " << merkel_root_hash << "\n"
+        << "------------------------------------------------------------------------------------------" << endl
+        << "Previous Block Hash   | " << prev_block_hash << "\n"
+        << "------------------------------------------------------------------------------------------" << endl;
+    } // Prints out the block values and the combined of value of transactions in the block
+
+    void print_block_transactions() {
+        for (auto it = TRANSACTIONS.begin(); it != TRANSACTIONS.end(); it++) {
+            TRANSACTIONS[it->first].print_transaction();
+        }
+    } // Prints out the transactions that are in the block
+
+    // Class functions
 
     int get_difficulty() const { return difficulty; }
+    int get_nonce() const { return nonce; }
     const vector<string>& get_transactions() const { return transactions; }
     string get_blockhash() const { return hash; }
     string get_prevblock_hash() const { return prev_block_hash; }
+    const map<string, transaction>& get_TRANSACTIONS() const { return TRANSACTIONS; }
     // Getters
 
+    void set_nonce(int NONCE) { nonce = NONCE; }
     void set_prevhash(string hash){ prev_block_hash = hash; }
     // Setters
 
