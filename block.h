@@ -53,7 +53,7 @@ public:
 
     void print_block() {
 
-        int num_txo = transactions.size();
+        int num_txo = TRANSACTIONS.size();
         float Value, fees;
         float plh;
 
@@ -89,6 +89,7 @@ public:
         << "------------------------------------------------------------------------------------------" << endl
         << "Previous Block Hash   | " << prev_block_hash << "\n"
         << "------------------------------------------------------------------------------------------" << endl;
+
     } // Prints out the block values and the combined of value of transactions in the block
 
     void print_block_transactions() {
@@ -96,6 +97,20 @@ public:
             TRANSACTIONS[it->first].print_transaction();
         }
     } // Prints out the transactions that are in the block
+
+    void remove_invalid_txo() {
+        map<string, transaction> new_txo;
+
+        for (const auto& transaction : transactions) {
+            auto it = TRANSACTIONS.find(transaction);
+
+            if (it != TRANSACTIONS.end() && it->second.POE()) {
+                new_txo[transaction] = TRANSACTIONS[transaction];
+            } // Uses POE(proof of existence) function to remove phantom transactions
+        }
+
+        TRANSACTIONS = move(new_txo);
+    }// Removes transactions that were invalid
 
     // Class functions
 
@@ -109,6 +124,7 @@ public:
 
     void set_nonce(int NONCE) { nonce = NONCE; }
     void set_prevhash(string hash){ prev_block_hash = hash; }
+    void set_txo (vector<string>& txo) { transactions = move(txo); }
     // Setters
 
     ~Block() {}

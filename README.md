@@ -60,10 +60,6 @@ FUNCTION gen_transactions(number_of_transactions)
             generates a second random user
         WHILE the generated users are not the same
         gets the max value a transaction will have
-        IF the value + fee is larger than available user funds
-            WHILE   the value + fee is larger than available user funds
-                gets the max value a transaction will have
-        updates the reserved value in user
         generates transaction_id with get_transactioID()
         creates the transactions struct
         ads the transaction to the transaction map
@@ -196,13 +192,26 @@ FUNCTION isOne(input)
     RETURNS number of zeroes
 
 FUNCTION validate_transaction(Transaction. block)
-    gets number of transactions
-        FOR the number of transactions
-            finds transaction in the map
-            gets values
-            finds users in map
-            updates their balance accordingly
-            updates their reserved value accordingly
+    INITIALIZE map copy of Transaction map in block
+    INITIALIZE vector that will hold valid transactions
+    INITIALIZE vector that will hold user balances
+
+    FOR number of transactions
+        using itterator find user
+        insert users balance into vector
+    FOR number of transactions
+        find transaction in transactio map from the block
+        IF user balance is larger than transaction value
+            input transaction into valid transaction vector
+    FOR number of valid transactions
+        gets values
+        finds users in map
+        updates their balance accordingly
+        updates their reserved value accordingly
+
+IF number of valid transaction is less than original number of transaction
+    set new transaction in block using set_txo(vector)
+    remove invalid transaction using remove_invalid_transactio()
 ```
 
 # Code examples
@@ -289,6 +298,7 @@ public:
         << "------------------------------------------------------------------------------------------" << endl
         << "Previous Block Hash   | " << prev_block_hash << "\n"
         << "------------------------------------------------------------------------------------------" << endl;
+
     } // Prints out the block values and the combined of value of transactions in the block
 
     void print_block_transactions() {
@@ -296,6 +306,20 @@ public:
             TRANSACTIONS[it->first].print_transaction();
         }
     } // Prints out the transactions that are in the block
+
+    void remove_invalid_txo() {
+        map<string, transaction> new_txo;
+
+        for (const auto& transaction : transactions) {
+            auto it = TRANSACTIONS.find(transaction);
+
+            if (it != TRANSACTIONS.end() && it->second.POE()) {
+                new_txo[transaction] = TRANSACTIONS[transaction];
+            } // Uses POE(proof of existence) function to remove phantom transactions
+        }
+
+        TRANSACTIONS = move(new_txo);
+    }// Removes transactions that were invalid
 
     // Class functions
 
@@ -309,6 +333,7 @@ public:
 
     void set_nonce(int NONCE) { nonce = NONCE; }
     void set_prevhash(string hash){ prev_block_hash = hash; }
+    void set_txo (vector<string>& txo) { transactions = move(txo); }
     // Setters
 
     ~Block() {}
@@ -354,6 +379,11 @@ struct transaction {
          << "Transaction fee | " << usd_f << " USD" << "                                         \n" 
          << "------------------------------------------------------------------------------------" << endl;
     }
+
+    bool POE() const {
+        return !transaction_id.empty() && !sender_pkey.empty() && !getter_pkey.empty() && value > 0;
+    }// Used to make sure a tranasction isn't "phantom"
+
     // Construct functions
 
 }; // construct for transactions
@@ -362,10 +392,9 @@ struct user {
     string name;
     string p_key;
     long balance;
-    long reserved = 0; // This values keeps track of how much money the user has already allocated for transactions
     // variables
 
-    user() : name(""), p_key(""), balance(0), reserved(0) {}
+    user() : name(""), p_key(""), balance(0) {}
 
     user(const string& name, const string& p_key, long balance) :
     name(name), p_key(p_key), balance(balance) {}
@@ -374,8 +403,7 @@ struct user {
     void print_user() const {
         cout << "name: " << name << "\n" 
         << "publick_key: " << p_key << "\n"
-        << "balance: " << balance << "\n"
-        << "reserved: " << reserved << "\n";
+        << "balance: " << balance << "\n";
     }
     // Construct functions
 };

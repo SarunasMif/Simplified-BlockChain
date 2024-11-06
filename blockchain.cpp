@@ -51,26 +51,48 @@ int isOne(const string& input) {
 void validate_transactions(const vector<string>& Transactions, Block& block) {
     long value, fee;
     string user1, user2;
+    map<string, transaction> copy = block.get_TRANSACTIONS();
+    vector<string> valid_txo;
+    vector<long> balances;
 
     size_t nmb_tx = Transactions.size();
 
     for (size_t i = 0; i < nmb_tx; i++) {
-        auto tx = transactions.find(Transactions[i]);
+        auto it = copy.find(Transactions[i]);
+        user1 = it->second.sender_pkey;
 
-      
-        value = tx->second.value;
-        user1 = tx->second.sender_pkey;
-        user2 = tx->second.getter_pkey;
+        auto tx = users.find(user1);
+        balances.push_back(tx->second.balance);
+    }
 
-        fee = tx->second.fee;
+    for (size_t i = 0; i < nmb_tx; i++) {
+        auto it = copy.find(Transactions[i]);
+
+        if (balances[i] >= it->second.value + it->second.fee) {
+            valid_txo.push_back(it->first);
+        }
+
+    }
+
+    for (size_t i = 0; i < valid_txo.size(); i++) {
+        auto it = copy.find(Transactions[i]);
+
+        value = it->second.value;
+        user1 = it->second.sender_pkey;
+        user2 = it->second.getter_pkey;
+
+        fee = it->second.fee;
 
         auto getter = users.find(user2);
         auto sender = users.find(user1);
 
         sender->second.balance -= value + fee;
-        sender->second.reserved -= value + fee;
 
         getter->second.balance += value;
-        // Goes through the users that are a part of the transaction and changes their balances and reserved funds accordingly to the value and fee of the transaction
+    }
+
+    if (Transactions.size() >= valid_txo.size()) {
+        block.set_txo(valid_txo);
+        block.remove_invalid_txo();
     }
 }// Validates transactions by going through the ones that are in the Block

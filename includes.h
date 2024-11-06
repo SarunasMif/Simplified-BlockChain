@@ -51,6 +51,11 @@ struct transaction {
          << "Transaction fee | " << usd_f << " USD" << "                                         \n" 
          << "------------------------------------------------------------------------------------" << endl;
     }
+
+    bool POE() const {
+        return !transaction_id.empty() && !sender_pkey.empty() && !getter_pkey.empty() && value > 0;
+    }// Used to make sure a tranasction isn't "phantom"
+
     // Construct functions
 
 }; // construct for transactions
@@ -59,10 +64,9 @@ struct user {
     string name;
     string p_key;
     long balance;
-    long reserved = 0; // This values keeps track of how much money the user has already allocated for transactions
     // variables
 
-    user() : name(""), p_key(""), balance(0), reserved(0) {}
+    user() : name(""), p_key(""), balance(0) {}
 
     user(const string& name, const string& p_key, long balance) :
     name(name), p_key(p_key), balance(balance) {}
@@ -71,8 +75,7 @@ struct user {
     void print_user() const {
         cout << "name: " << name << "\n" 
         << "publick_key: " << p_key << "\n"
-        << "balance: " << balance << "\n"
-        << "reserved: " << reserved << "\n";
+        << "balance: " << balance << "\n";
     }
     // Construct functions
 };

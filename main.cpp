@@ -98,22 +98,12 @@ void gen_transaction(int number_of_transactions) {
         }while (user2 == user1);
         // Picks random two users who will be a part of the transaction
 
-        value1 = users[user1].balance - users[user1].reserved;
+        value1 = users[user1].balance;
 
-        flt_placeholder = get_rnd_long(100, 1000);
+        flt_placeholder = get_rnd_long(100, value1);
         fee = flt_placeholder * 0.1;
-
-        if (flt_placeholder + fee > value1) {
-            while (flt_placeholder + fee > value1) {
-                flt_placeholder = get_rnd_long(100, 1000);
-                fee = flt_placeholder * 0.1;
-            }
-        }
-        // Generates the transactions value so that it isn't larger than the available balance and already allocated funds
-
-        users[user1].reserved = users[user1].reserved + flt_placeholder + fee;
-        // Allocates funds
-        
+        // Generates the transactions value 
+    
         t_id = get_transactionID(user1, user2, flt_placeholder, fee);
         transaction Transaction(t_id, user1, user2, flt_placeholder, fee);
         transactions[Transaction.transaction_id] = Transaction;
