@@ -110,7 +110,7 @@ void gen_transaction(int number_of_transactions) {
         all_txo.push_back(t_id);
         // Generates the transactions id and ads it to the transaction vecotor, aswell as constructs the transaction and ads it to the transaction map
 
-        cout << "Generated transaction with the id: " << t_id << endl;
+        // cout << "Generated transaction with the id: " << t_id << endl;
     }
 }
 
@@ -279,9 +279,15 @@ int main() {
 
     gen_transaction(10000);
 
+    auto start = high_resolution_clock::now();
+
     do {
         mine_blocks();
     } while (all_txo.size() != 0);
+
+    auto stop = high_resolution_clock::now();
+    chrono::duration<double> diff = stop - start;
+    cout << "Mining took: " << diff.count() << " seconds." << endl;
 
     string input, Input;
 

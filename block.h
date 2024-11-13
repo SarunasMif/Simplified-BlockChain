@@ -106,6 +106,7 @@ public:
 
             if (it != TRANSACTIONS.end() && it->second.POE()) {
                 new_txo[transaction] = TRANSACTIONS[transaction];
+                cout << "Valid transaction added with the id: " << TRANSACTIONS[transaction].transaction_id << endl << endl;
             } // Uses POE(proof of existence) function to remove phantom transactions
         }
 
